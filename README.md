@@ -1,4 +1,4 @@
-Painel analítico com dados das obras do cadastro nacional de obras (CNO) iniciadas entre 01/01/2020 a 31/05/2021 para o estado de Minas Gerais. Dashboard utilizando Plotly e Dash. O app pode ser acessado em:  https://obrasmg.herokuapp.com/ 
+Painel analítico com dados das obras do Cadastro Nacional de Obras (CNO) iniciadas entre 01/01/2020 a 31/05/2021 para o estado de Minas Gerais. Dashboard utilizando Plotly e Dash. O app pode ser acessado em:  https://obrasmg.herokuapp.com/ 
 
 O painel consiste de dois componentes gráficos: 
 
