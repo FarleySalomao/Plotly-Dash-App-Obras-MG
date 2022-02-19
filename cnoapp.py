@@ -8,10 +8,12 @@ Created on Tue Feb 15 10:39:58 2022
 import pandas as pd
 import plotly.express as px
 from dash import Dash, dcc, html, Input, Output, callback_context
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 # Carregando banco de dados e definindo outras variaveis----------------------
 df = pd.read_csv('mg_final(2020)d.csv')
-px.set_mapbox_access_token('pk.eyJ1IjoiZmFybGV5c2FsZiIsImEiOiJja3puMGl0aTQyc2h6MnVvYjRjbDNwb2VkIn0.eXTCViUG_yv5BuLfehPhVw')
+px.set_mapbox_access_token(
+    'pk.eyJ1IjoiZmFybGV5c2FsZiIsImEiOiJja3puMGl0aTQyc2h6MnVvYjRjbDNwb2VkIn0.eXTCViUG_yv5BuLfehPhVw')
 lista_cidades = list(df['Município'].unique())
 lista_cidades.sort()
 datas = {
@@ -35,7 +37,9 @@ datas = {
     18: '2021-06-01',
 }
 dfcnae = pd.read_csv('cnae3.csv')
-#------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------
 # definindo funções dos graficos
 # definindo função para o mapa de disperção
 def mapa(df, value):
@@ -50,15 +54,18 @@ def mapa(df, value):
                             )
     fig.update_layout(
         legend={'orientation': 'h'},
-        )
-    fig.update_mapboxes(center={'lat':-18,'lon':-43},
+    )
+    fig.update_traces(marker_opacity=0.60, marker_size=5, selector=dict(type='scattermapbox'))
+    fig.update_mapboxes(center={'lat': -18, 'lon': -43},
                         zoom=5.5)
-    
+
     return [fig]
-#------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------
 # definindo função para o grafico de barras------------------------------------
 def g_barra(value):
-    df2 = df[df['Município']==value] 
+    df2 = df[df['Município'] == value]
     df3 = df2.groupby(['Código CNAE', 'Situação']).agg({'Obras': 'sum'})
     df3.reset_index(level=0, inplace=True)
     df3.reset_index(level=0, inplace=True)
@@ -69,9 +76,11 @@ def g_barra(value):
                   height=550)
     fig2.update_traces(textfont_size=12, textangle=0, textposition="outside", cliponaxis=False)
     fig2.update_layout(
-        title_pad={'b':0, 'l': 400, 'r':0, 't':0})
+        title_pad={'b': 0, 'l': 400, 'r': 0, 't': 0})
     return [fig2]
-#------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------
 app = Dash(__name__)
 server = app.server
 # ------------------------------------------------------------------------------
@@ -79,22 +88,21 @@ server = app.server
 app.layout = html.Div([
     html.H1('Distribuição Geógrafica de Obras Cadastradas (CNO) - Minas Gerais',
             style={'text-align': 'center'}),
-    
+
     html.Div(
         dcc.Graph(id="mapa")),
-    
 
     html.Div(
         dcc.RadioItems(id='radio',
-           options=[
-               {'label': 'CNAE 7 dígitos', 'value': 'Código CNAE'},
-               {'label': 'CNAE 3 dígitos', 'value': 'CNAE (3 digitos)'},
-               {'label': 'Situação', 'value': 'Situação'},
-           ],
-           value='CNAE (3 digitos)'
-        )),
-    
-        dcc.RangeSlider(
+                       options=[
+                           {'label': 'CNAE 7 dígitos', 'value': 'Código CNAE'},
+                           {'label': 'CNAE 3 dígitos', 'value': 'CNAE (3 digitos)'},
+                           {'label': 'Situação', 'value': 'Situação'},
+                       ],
+                       value='CNAE (3 digitos)'
+                       )),
+
+    dcc.RangeSlider(
         id='slider',
         min=1,
         max=18,
@@ -103,18 +111,18 @@ app.layout = html.Div([
         value=[1, 18]
     ),
 
-    html.Div(html.P(''),),
+    html.Div(html.P(''), ),
 
     html.Div(
         dcc.Dropdown(
             id='dropdown2',
-            options=[{'label': i, 'value':i} for i in lista_cidades],
-           value='Belo Horizonte'
+            options=[{'label': i, 'value': i} for i in lista_cidades],
+            value='Belo Horizonte'
         )),
 
     html.Div(
         dcc.Graph(id="bar")),
-    
+
     html.Div([
         dcc.Markdown("© 2022 Farley Salomão F. " +
                      "[[Github]](https://github.com/FarleySalomao) " +
@@ -129,27 +137,26 @@ app.layout = html.Div([
 
 ])
 
+
 # -----------------------------------------------------------------------------
 # Configurando os callbacks do app
 @app.callback(
     [Output(component_id='mapa', component_property='figure')],
     [Input('radio', 'value')], [Input('slider', 'value')])
-
-
 def update_legenda(value_a, value_b):
     df2 = df.copy()
-    df2 = df2.loc[(df2['Data de Início']>=datas[value_b[0]]) & 
-                  (df2['Data de Início']<=datas[value_b[1]])]
-    
+    df2 = df2.loc[(df2['Data de Início'] >= datas[value_b[0]]) &
+                  (df2['Data de Início'] <= datas[value_b[1]])]
+
     return mapa(df2, value_a)
+
 
 @app.callback(
     [Output(component_id='bar', component_property='figure')],
     [Input('dropdown2', 'value')])
-
-
 def update_cidade(value2):
     return g_barra(value2)
+
 
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
